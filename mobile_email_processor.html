@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1">
+    <title>📧 Mobile Email Processor - Michael RoBards, LCSW</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3c72 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 15px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 1.2em;
+            color: #2c5aa0;
+            margin-bottom: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .template-help {
+            background: #e8f4f8;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .template-help h4 {
+            color: #2c5aa0;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .template-code {
+            background: #f1f3f4;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', 'Monaco', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            margin: 8px 0;
+        }
+
+        .markdown-input {
+            width: 100%;
+            height: 250px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .markdown-input:focus {
+            outline: none;
+            border-color: #2c5aa0;
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .btn {
+            padding: 16px 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 50px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3c72 100%);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .email-preview {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            min-height: 150px;
+            font-size: 14px;
+        }
+
+        .email-header {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #2c5aa0;
+        }
+
+        .email-field {
+            margin-bottom: 8px;
+            display: block;
+            word-break: break-all;
+        }
+
+        .email-field strong {
+            color: #2c5aa0;
+            font-weight: 600;
+            display: inline-block;
+            min-width: 60px;
+        }
+
+        .email-body {
+            border-top: 1px solid #e0e0e0;
+            padding-top: 15px;
+            line-height: 1.6;
+        }
+
+        .email-body h1, .email-body h2, .email-body h3 {
+            color: #2c5aa0;
+            margin: 15px 0 8px 0;
+            font-size: 1.1em;
+        }
+
+        .email-body p {
+            margin-bottom: 12px;
+        }
+
+        .email-body ul, .email-body ol {
+            padding-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .email-body li {
+            margin-bottom: 4px;
+        }
+
+        .email-body strong {
+            color: #2c5aa0;
+            font-weight: 600;
+        }
+
+        .email-body em {
+            color: #666;
+            font-style: italic;
+        }
+
+        .status-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-info {
+            background: #e8f4f8;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        .instructions h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .instructions ol {
+            padding-left: 18px;
+        }
+
+        .instructions li {
+            margin-bottom: 6px;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: 1px solid #ccc;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Desktop optimizations */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1000px;
+                margin: 20px auto;
+            }
+            
+            .main-content {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                padding: 25px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .header p {
+                font-size: 1.1em;
+            }
+            
+            .markdown-input {
+                height: 350px;
+                font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+                font-size: 14px;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+            
+            .btn-primary {
+                grid-column: 1 / -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 Mobile Email Processor</h1>
+            <p>Transform Letters into Gmail-Ready Emails</p>
+            <p style="font-size: 0.8em; margin-top: 8px;">Michael A. RoBards, LCSW</p>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <div class="section">
+                    <h2 class="section-title">📝 Input Your Letter</h2>
+                    
+                    <div class="template-help">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h4>📋 Quick Template</h4>
+                            <button class="toggle-btn" onclick="toggleTemplate()">
+                                <span id="toggleText">Hide</span>
+                            </button>
+                        </div>
+                        <div id="templateContent">
+                            <p>Add this header to your letter:</p>
+                            <div class="template-code">---
+EMAIL_TYPE: new
+TO: client@email.com
+SUBJECT: Your Subject Here
+---</div>
+                        </div>
+                    </div>
+
+                    <textarea 
+                        class="markdown-input" 
+                        id="markdownInput"
+                        placeholder="📱 Paste your letter here...
+
+Quick example:
+---
+EMAIL_TYPE: new
+TO: client@email.com
+SUBJECT: Follow-up
+---
+
+# Dear Client,
+
+Your message here...
+
+Best regards,
+Michael">
+                    </textarea>
+
+                    <div class="controls">
+                        <button class="btn btn-primary" onclick="processEmail()">
+                            🚀 Process Email
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearAll()">
+                            🗑️ Clear
+                        </button>
+                        <button class="btn btn-success" onclick="loadSample()">
+                            📄 Sample
+                        </button>
+                    </div>
+
+                    <div id="statusMessage"></div>
+                </div>
+            </div>
+
+            <div class="output-section">
+                <div class="section">
+                    <h2 class="section-title">📧 Email Preview</h2>
+                    
+                    <div class="email-preview" id="emailPreview">
+                        <p style="color: #666; text-align: center; padding: 30px 10px;">
+                            📝 Enter your letter above and tap "Process Email" to see the preview here.
+                        </p>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-success" onclick="openGmail()" id="gmailButton" style="display: none;">
+                            📧 Open Gmail
+                        </button>
+                        <button class="btn btn-info" onclick="copyAsHTML()" id="copyHTMLButton" style="display: none;">
+                            🎨 Copy Rich
+                        </button>
+                        <button class="btn btn-secondary" onclick="copyAsText()" id="copyTextButton" style="display: none;">
+                            📋 Copy Plain
+                        </button>
+                    </div>
+
+                    <div class="instructions">
+                        <h4>📱 How to Use:</h4>
+                        <ol>
+                            <li><strong>Paste your letter</strong> in the text box above</li>
+                            <li><strong>Add email info</strong> (TO, SUBJECT, etc.)</li>
+                            <li><strong>Tap "Process Email"</strong> to generate</li>
+                            <li><strong>Tap "Copy Rich"</strong> for beautiful Gmail formatting</li>
+                            <li><strong>Or "Copy Plain"</strong> for simple text</li>
+                            <li><strong>Paste into Gmail</strong> and send!</li>
+                        </ol>
+                        <p style="margin-top: 10px; font-size: 13px; color: #666;"><strong>💡 Pro Tip:</strong> "Copy Rich" creates beautiful HTML formatting in Gmail with colors, headers, and styling!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentEmailData = null;
+
+        // Mobile-friendly functions
+        function toggleTemplate() {
+            const content = document.getElementById('templateContent');
+            const toggleText = document.getElementById('toggleText');
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                toggleText.textContent = 'Hide';
+            } else {
+                content.classList.add('hidden');
+                toggleText.textContent = 'Show';
+            }
+        }
+
+        function showStatus(message, type = 'info') {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+            
+            // Mobile haptic feedback
+            if (navigator.vibrate && (type === 'success' || type === 'error')) {
+                navigator.vibrate(type === 'success' ? [50] : [100, 50, 100]);
+            }
+            
+            setTimeout(() => statusEl.innerHTML = '', 6000);
+        }
+
+        function parseMarkdown(markdown) {
+            const emailData = {
+                type: 'new',
+                to: '',
+                subject: '',
+                cc: '',
+                bcc: '',
+                body: markdown
+            };
+
+            // Parse YAML frontmatter
+            if (markdown.startsWith('---')) {
+                const parts = markdown.split('---');
+                if (parts.length >= 3) {
+                    const frontmatter = parts[1].trim();
+                    const body = parts.slice(2).join('---').trim();
+                    
+                    const lines = frontmatter.split('\n');
+                    lines.forEach(line => {
+                        const [key, ...valueParts] = line.split(':');
+                        if (key && valueParts.length > 0) {
+                            const value = valueParts.join(':').trim();
+                            const cleanKey = key.trim().toLowerCase().replace(/_/g, '');
+                            
+                            switch (cleanKey) {
+                                case 'emailtype': emailData.type = value; break;
+                                case 'to': emailData.to = value; break;
+                                case 'subject': emailData.subject = value; break;
+                                case 'cc': emailData.cc = value; break;
+                                case 'bcc': emailData.bcc = value; break;
+                            }
+                        }
+                    });
+                    
+                    emailData.body = body;
+                }
+            }
+
+            // Auto-detect email if not provided
+            if (!emailData.to) {
+                const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+                const emails = markdown.match(emailRegex);
+                if (emails) {
+                    for (const email of emails) {
+                        if (!email.includes('michaelarobards')) {
+                            emailData.to = email;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Auto-generate subject if not provided
+            if (!emailData.subject) {
+                const titleMatch = markdown.match(/^#\s+(.+)$/m);
+                if (titleMatch) {
+                    emailData.subject = titleMatch[1];
+                } else if (markdown.toLowerCase().includes('legal')) {
+                    emailData.subject = 'Strategic Information & Legal Options';
+                } else {
+                    emailData.subject = 'Follow-up from Our Session';
+                }
+            }
+
+            return emailData;
+        }
+
+        function markdownToHtml(markdown) {
+            let html = markdown
+                .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/^---$/gm, '<hr>')
+                .replace(/^\s*(.+)$/gm, '<p>$1</p>')
+                .replace(/<p>(<h[1-6]>.*<\/h[1-6]>)<\/p>/g, '$1')
+                .replace(/<p>(<hr>)<\/p>/g, '$1');
+            
+            return html;
+        }
+
+        function processEmail() {
+            const markdown = document.getElementById('markdownInput').value.trim();
+            
+            if (!markdown) {
+                showStatus('📝 Please enter your letter first.', 'error');
+                return;
+            }
+
+            try {
+                const emailData = parseMarkdown(markdown);
+                currentEmailData = emailData;
+
+                const htmlBody = markdownToHtml(emailData.body);
+                
+                const preview = `
+                    <div class="email-header">
+                        <div class="email-field"><strong>Type:</strong> ${emailData.type.charAt(0).toUpperCase() + emailData.type.slice(1)} Email</div>
+                        <div class="email-field"><strong>To:</strong> ${emailData.to || 'Not specified'}</div>
+                        <div class="email-field"><strong>Subject:</strong> ${emailData.subject}</div>
+                        ${emailData.cc ? `<div class="email-field"><strong>CC:</strong> ${emailData.cc}</div>` : ''}
+                        ${emailData.bcc ? `<div class="email-field"><strong>BCC:</strong> ${emailData.bcc}</div>` : ''}
+                    </div>
+                    <div class="email-body">
+                        ${htmlBody}
+                    </div>
+                `;
+
+                document.getElementById('emailPreview').innerHTML = preview;
+                document.getElementById('gmailButton').style.display = 'block';
+                document.getElementById('copyHTMLButton').style.display = 'block';
+                document.getElementById('copyTextButton').style.display = 'block';
+
+                showStatus('✅ Email processed successfully! Use "Copy Rich" for beautiful formatting in Gmail.', 'success');
+
+            } catch (error) {
+                showStatus('❌ Error processing email: ' + error.message, 'error');
+            }
+        }
+
+        function openGmail() {
+            if (!currentEmailData || !currentEmailData.to) {
+                showStatus('📧 Please add a recipient email address first.', 'error');
+                return;
+            }
+
+            // Mobile detection
+            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                // For mobile, use simplified approach
+                openMobileGmail();
+            } else {
+                // Desktop can handle longer URLs
+                openWebGmail();
+            }
+        }
+
+        function openMobileGmail() {
+            // Try Gmail app with just recipient and subject (body too long for URL)
+            const gmailAppUrl = `googlegmail://co?to=${encodeURIComponent(currentEmailData.to)}&subject=${encodeURIComponent(currentEmailData.subject)}`;
+            
+            // Try to open Gmail app
+            window.location.href = gmailAppUrl;
+            
+            // Show instructions for manual paste
+            setTimeout(() => {
+                showStatus('📱 Gmail app should open with recipient filled. Use "Copy Email" button below to copy the message, then paste into Gmail.', 'info');
+            }, 1000);
+        }
+
+        function openWebGmail() {
+            // For desktop, try shorter body or fallback to basic compose
+            const shortBody = currentEmailData.body.length > 1000 ? 
+                currentEmailData.body.substring(0, 1000) + "...\n\n[Full message copied to clipboard - please paste complete version]" : 
+                currentEmailData.body;
+                
+            const encodedBody = encodeURIComponent(shortBody);
+            const encodedSubject = encodeURIComponent(currentEmailData.subject);
+            const encodedTo = encodeURIComponent(currentEmailData.to);
+
+            let gmailUrl = `https://mail.google.com/mail/u/0/?view=cm&to=${encodedTo}&su=${encodedSubject}&body=${encodedBody}`;
+
+            if (currentEmailData.cc) {
+                gmailUrl += `&cc=${encodeURIComponent(currentEmailData.cc)}`;
+            }
+
+            // Also copy full content to clipboard as backup
+            copyToClipboard();
+
+            try {
+                window.open(gmailUrl, '_blank');
+                showStatus('📧 Gmail opened with recipient and subject. Full message copied to clipboard for pasting.', 'success');
+            } catch (error) {
+                showStatus('📧 Please use "Copy Email" button and paste manually into Gmail.', 'info');
+            }
+        }
+
+        function copyAsHTML() {
+            if (!currentEmailData) {
+                showStatus('📝 Please process an email first.', 'error');
+                return;
+            }
+
+            // Create beautiful HTML for Gmail
+            const htmlBody = createGmailHTML(currentEmailData.body);
+            
+            // Create HTML with email headers
+            const htmlEmail = `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 800px;">
+${htmlBody}
+</div>`;
+
+            // Copy HTML to clipboard - Gmail will render it beautifully
+            const clipboardItem = new ClipboardItem({
+                'text/html': new Blob([htmlEmail], { type: 'text/html' }),
+                'text/plain': new Blob([markdownToCleanText(currentEmailData.body)], { type: 'text/plain' })
+            });
+
+            navigator.clipboard.write([clipboardItem]).then(() => {
+                showStatus('🎨 Rich HTML copied! Paste into Gmail for beautiful formatting.', 'success');
+            }).catch(() => {
+                // Fallback: copy HTML as text (user can paste into Gmail's HTML mode)
+                copyHTMLFallback(htmlEmail);
+            });
+        }
+
+        function createGmailHTML(markdown) {
+            let html = markdown;
+            
+            // Convert headers with beautiful styling
+            html = html.replace(/^### (.*$)/gm, '<h3 style="color: #2c5aa0; font-size: 1.2em; margin: 20px 0 10px 0; font-weight: 600;">$1</h3>');
+            html = html.replace(/^## (.*$)/gm, '<h2 style="color: #2c5aa0; font-size: 1.4em; margin: 25px 0 15px 0; font-weight: 600; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">$1</h2>');
+            html = html.replace(/^# (.*$)/gm, '<h1 style="color: #2c5aa0; font-size: 1.6em; margin: 30px 0 20px 0; font-weight: 700; border-bottom: 3px solid #2c5aa0; padding-bottom: 10px;">$1</h1>');
+            
+            // Convert formatting with beautiful styles
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #2c5aa0; font-weight: 600;">$1</strong>');
+            html = html.replace(/\*(.*?)\*/g, '<em style="color: #666; font-style: italic;">$1</em>');
+            html = html.replace(/`(.*?)`/g, '<code style="background: #f1f3f4; padding: 2px 6px; border-radius: 4px; font-family: monospace;">$1</code>');
+            
+            // Convert horizontal rules
+            html = html.replace(/^---$/gm, '<hr style="border: none; border-top: 2px solid #e0e0e0; margin: 30px 0;">');
+            
+            // Convert paragraphs with proper spacing
+            html = html.replace(/^\s*(.+)$/gm, '<p style="margin: 0 0 15px 0; line-height: 1.6;">$1</p>');
+            
+            // Clean up paragraph tags around headers and hrs
+            html = html.replace(/<p[^>]*>(<h[1-6][^>]*>.*<\/h[1-6]>)<\/p>/g, '$1');
+            html = html.replace(/<p[^>]*>(<hr[^>]*>)<\/p>/g, '$1');
+            
+            // Handle lists (basic)
+            html = html.replace(/^\s*[-*+]\s+(.+)$/gm, '<li style="margin-bottom: 8px;">$1</li>');
+            html = html.replace(/(<li[^>]*>.*<\/li>)/s, '<ul style="margin: 15px 0; padding-left: 25px;">$1</ul>');
+            html = html.replace(/^\s*\d+\.\s+(.+)$/gm, '<li style="margin-bottom: 8px;">$1</li>');
+            html = html.replace(/(<li[^>]*>.*<\/li>)/s, '<ol style="margin: 15px 0; padding-left: 25px;">$1</ol>');
+            
+            return html;
+        }
+
+        function copyHTMLFallback(htmlEmail) {
+            // Fallback: copy as text that user can paste into Gmail
+            const textArea = document.createElement('textarea');
+            textArea.value = htmlEmail;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showStatus('🎨 HTML copied! Paste into Gmail for rich formatting.', 'success');
+            } catch (err) {
+                showStatus('❌ Please use "Copy Plain" button for simple text.', 'error');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function copyAsText() {
+            if (!currentEmailData) {
+                showStatus('📝 Please process an email first.', 'error');
+                return;
+            }
+
+            // Convert markdown to clean text for email
+            const cleanBody = markdownToCleanText(currentEmailData.body);
+
+            const copyText = `To: ${currentEmailData.to}
+Subject: ${currentEmailData.subject}
+${currentEmailData.cc ? `CC: ${currentEmailData.cc}\n` : ''}${currentEmailData.bcc ? `BCC: ${currentEmailData.bcc}\n` : ''}
+
+${cleanBody}`;
+
+            // Modern clipboard API
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(copyText).then(() => {
+                    showStatus('📋 Plain text copied! Long-press in your email app to paste.', 'success');
+                }).catch(() => {
+                    fallbackCopy(copyText);
+                });
+            } else {
+                fallbackCopy(copyText);
+            }
+        }
+
+        function markdownToCleanText(markdown) {
+            let text = markdown;
+            
+            // Convert headers to text with proper spacing
+            text = text.replace(/^### (.*$)/gm, '\n$1\n' + '=' .repeat(30) + '\n');
+            text = text.replace(/^## (.*$)/gm, '\n$1\n' + '=' .repeat(40) + '\n');
+            text = text.replace(/^# (.*$)/gm, '\n$1\n' + '=' .repeat(50) + '\n');
+            
+            // Convert formatting
+            text = text.replace(/\*\*(.*?)\*\*/g, '$1'); // Remove bold
+            text = text.replace(/\*(.*?)\*/g, '$1'); // Remove italic
+            text = text.replace(/`(.*?)`/g, '$1'); // Remove code formatting
+            
+            // Handle horizontal rules
+            text = text.replace(/^---$/gm, '\n' + '=' .repeat(50) + '\n');
+            
+            // Clean up extra newlines
+            text = text.replace(/\n{3,}/g, '\n\n');
+            
+            // Clean up spaces
+            text = text.trim();
+            
+            return text;
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showStatus('📋 Email copied! Paste into your email app.', 'success');
+            } catch (err) {
+                showStatus('❌ Please select and copy the text manually.', 'error');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function clearAll() {
+            document.getElementById('markdownInput').value = '';
+            document.getElementById('emailPreview').innerHTML = '<p style="color: #666; text-align: center; padding: 30px 10px;">📝 Enter your letter above and tap "Process Email" to see the preview here.</p>';
+            document.getElementById('gmailButton').style.display = 'none';
+            document.getElementById('copyHTMLButton').style.display = 'none';
+            document.getElementById('copyTextButton').style.display = 'none';
+            currentEmailData = null;
+            showStatus('🗑️ All fields cleared.', 'info');
+        }
+
+        function loadSample() {
+            const sample = `---
+EMAIL_TYPE: new
+TO: savannah.lang@example.com
+SUBJECT: Strategic Information & Legal Options - Follow-up
+---
+
+# Letter to Savannah Lang
+
+**Date:** June 12, 2025  
+**From:** Michael A. RoBards, LCSW  
+
+## Hey Savannah,
+
+I wanted to follow up on our session today with some important information. First, let me be clear: **I'm not an attorney and this isn't legal advice.** What I'm providing is strategic information to help you understand your options.
+
+## 🎯 The Bottom Line
+
+You have a **very strong sexual harassment case** with significant financial potential. The combination of Chris being both your supervisor and landlord creates an unusually powerful legal position.
+
+More importantly - **you don't have to tolerate this anymore.** You have options, you have power, and you have people who will fight for you.
+
+## 🏢 What I Discovered
+
+My research shows you're dealing with major corporations with significant legal obligations and deep pockets. This isn't some small company that can ignore you.
+
+**You deserve better than this.**
+
+---
+
+**Michael A. RoBards, LCSW**  
+**Kentucky License #3207**  
+**(502) 225-3025**`;
+
+            document.getElementById('markdownInput').value = sample;
+            showStatus('📄 Sample letter loaded! Tap "Process Email" to see the result.', 'success');
+        }
+
+        // Auto-save functionality
+        document.getElementById('markdownInput').addEventListener('input', function() {
+            localStorage.setItem('emailProcessor_draft', this.value);
+        });
+
+        // Prevent zoom on focus (iOS Safari)
+        document.getElementById('markdownInput').addEventListener('focus', function() {
+            if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0');
+            }
+        });
+
+        document.getElementById('markdownInput').addEventListener('blur', function() {
+            if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width,initial-scale=1,user-scalable=1');
+            }
+        });
+
+        // Load saved draft and hide template on mobile
+        window.addEventListener('load', function() {
+            const saved = localStorage.getItem('emailProcessor_draft');
+            if (saved) {
+                document.getElementById('markdownInput').value = saved;
+            }
+            
+            // Hide template on mobile by default
+            if (window.innerWidth < 768) {
+                toggleTemplate();
+            }
+        });
+    </script>
+</body>
+</html>
